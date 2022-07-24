@@ -1,2 +1,2 @@
 # projectBoard
-Managing project with project boards
+App for managing projects in like boards (kanban)
