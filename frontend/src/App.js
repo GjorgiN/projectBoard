@@ -1,12 +1,26 @@
+import { BrowserRouter, Routes, Route } from "react-router-dom";
+import MyNavbar from "./Components/MyNavbar";
+import Register from "./Components/Register";
+import Home from "./Pages/Home";
+import Project from "./Pages/Project";
+import { useState } from "react";
 
-function App() {
-  
+const App = () => {
+
+  const [isLoggedIn, setIsLoggedIn] = useState(false);
+
+
   return (
-    <div>
-      <input type="text" placeholder="username" />   
-      <input type="password" placeholder="password" />   
-    Hello World
-    </div>
+
+    <BrowserRouter>
+      {isLoggedIn && <MyNavbar />}
+      <Routes>
+        <Route exact path="/" element={<Home isLoggedIn={isLoggedIn} setIsLoggedIn={setIsLoggedIn} />} />
+        <Route path="register" element={<Register />} />
+        <Route path="/project/:projectId" element={<Project isLoggedIn={isLoggedIn} setIsLoggedIn={setIsLoggedIn} />} />
+      </Routes>
+    </BrowserRouter>
+
   );
 }
 
