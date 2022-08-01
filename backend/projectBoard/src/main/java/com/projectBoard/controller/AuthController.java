@@ -116,7 +116,7 @@ public class AuthController {
 		return new ResponseEntity<>(response, HttpStatus.OK);
 		} catch (Exception e) {
 			e.printStackTrace();
-			return new ResponseEntity<>("Authentication failed...", HttpStatus.INTERNAL_SERVER_ERROR);
+			return new ResponseEntity<>("Authentication failed... " + e.getLocalizedMessage(), HttpStatus.UNAUTHORIZED);
 		}
 	}
 
