@@ -1,7 +1,9 @@
 import React, { useEffect, useState } from 'react'
-import { Container } from 'react-bootstrap';
+import { Container, Button } from 'react-bootstrap';
 import { Link, useParams, Redirect } from 'react-router-dom'
 import axios from 'axios'
+import Section from '../Components/Section';
+import plusLg from '../../node_modules/bootstrap-icons/icons/plus-lg.svg'
 
 const baseUrl = 'http://localhost:8080/api/project/myprojects'
 
@@ -36,7 +38,9 @@ const Project = ({ setIsLoggedIn, isLoggedIn }) => {
         if (token) {
             setIsLoggedIn(true);
         }
-        getProjectData();
+        if (!project) {
+            getProjectData();
+        }
 
     }, [isLoaded])
 
@@ -45,12 +49,16 @@ const Project = ({ setIsLoggedIn, isLoggedIn }) => {
     return (
         <>
             {isLoggedIn && isLoaded ?
-                <Container>
-                    <h3 className='d-flex justify-content-center h3 mt-5 pt-3'>HELLO PROJECT No. {projectId}</h3>
-                    <div className='d-flex '>
-                        {project.sectionsOrder.map(section => <div className='mx-1 btn btn-success' key={section}>{project.sections[section].title}</div>)}
-                    </div>
+                <Container style={{ border: '2px solid red', margin: "4em 0em 0.5em 0.5em", minWidth: 'fit-content'}}>
+                    <h3>{project.title}</h3>
+                    <div className='d-flex m-1'>
+                        <div className='d-flex'>
+                            {project.sectionsOrder.map(section => <Section tasks={project.tasks} section={project.sections[section]} key={section} />)}
+                        </div>
+                        <Button className='d-flex justify-content-center align-items-center' style={{ width: '12rem', height: 'max-content' }} variant='light'>
+                            <img className='me-1' width='24rem' src={plusLg} />New Section</Button>
 
+                    </div>
                 </Container> :
                 <div>
                     <Link to="/" className='h2 d-flex mt-5 justify-content-center'>You need to log in...</Link>
