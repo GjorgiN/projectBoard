@@ -1,0 +1,12 @@
+.myTask {
+    width: 18rem;
+    background-color: rgba(238,202,252,0.3);
+} 
+
+.myTask:hover {
+    border-color: rgb(224, 199, 85);
+    border-left: solid 0.4rem rgb(224, 199, 85);
+    transition: all ease-in-out 0.3s;
+    
+}
+
