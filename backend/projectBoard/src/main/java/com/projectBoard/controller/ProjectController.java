@@ -304,6 +304,8 @@ public class ProjectController {
 
 			Section section = new Section();
 			section.setTitle(newSection.getTitle());
+			section.setOrderId(newSection.getOrderId());
+			section.setTasks(new ArrayList<Task>());
 
 			Project project = projectRepo.findById(projectId).get();
 
@@ -311,8 +313,10 @@ public class ProjectController {
 
 			sectionRepo.save(section);
 			projectRepo.save(project);
+			
+			SectionResReq sectionResReq = new SectionResReq(section.getId().toString(), section.getTitle(),section.getDescription(),new ArrayList<String>());
 
-			return new ResponseEntity<>(section, HttpStatus.OK);
+			return new ResponseEntity<>(sectionResReq, HttpStatus.OK);
 		} catch (Exception e) {
 			e.printStackTrace();
 			return new ResponseEntity<>(null, HttpStatus.INTERNAL_SERVER_ERROR);
@@ -320,6 +324,64 @@ public class ProjectController {
 		}
 
 	}
+	
+	@PreAuthorize("hasRole('ROLE_USER')")
+	@PutMapping("/myprojects/{projectId}")
+	public ResponseEntity<?> updateSection(@PathVariable Long projectId, @RequestBody SectionResReq sectionUpdates) {
+		try {
+			if (getUserCredentialsPerProject(projectId) != "owner") {
+				return new ResponseEntity<>(HttpStatus.UNAUTHORIZED);
+			}
+			
+			Section section = sectionRepo.findById(Long.parseLong(sectionUpdates.getId())).get();
+
+			//update title
+			String updatedTitle = sectionUpdates.getTitle();
+			if (updatedTitle != null && section.getTitle() != updatedTitle) {
+				section.setTitle(updatedTitle);
+			}
+			
+			//update description
+			String updatedDescription = sectionUpdates.getDescription();
+			if (updatedDescription != null && section.getDescription() != updatedDescription) {
+				section.setDescription(updatedDescription);
+			}
+			
+			// update the order of tasks and section relation
+			Long updateSectionId = Long.parseLong(sectionUpdates.getId());
+			List<String> tasksOrder = sectionUpdates.getTasksIds();
+			
+			for (String taskId : tasksOrder) {
+				Long sectionId = sectionRepo.findSectionByTaskId(Long.parseLong(taskId));
+				Task task = taskRepo.findById(Long.parseLong(taskId)).get();
+
+				// remove task from old section and add it to the new one
+				if (sectionId != updateSectionId) {
+					Section oldSection = sectionRepo.findById(sectionId).get();
+					oldSection.getTasks().removeIf(t-> t.getId() == task.getId());
+					sectionRepo.save(oldSection);
+					section.getTasks().add(task);
+					
+				}
+				Integer taskOrder = task.getOrderId();
+				Integer updatedTaskOrder = tasksOrder.indexOf(taskId) + 1;
+				if (taskOrder != updatedTaskOrder) {
+					task.setOrderId(updatedTaskOrder);
+					taskRepo.save(task);
+				}
+			}
+			sectionRepo.save(section);
+			
+			
+			return new ResponseEntity<>(HttpStatus.ACCEPTED);
+			} catch (Exception e) {
+				System.out.println(e);
+				return new ResponseEntity<>(e.getLocalizedMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
+			}
+		}
+
+	
+	
 
 	@PreAuthorize("hasRole('ROLE_USER')")
 	@DeleteMapping("/myprojects/{projectId}/{sectionId}")
@@ -334,6 +396,15 @@ public class ProjectController {
 
 			Project project = projectRepo.findById(projectId).get();
 			project.getSections().remove(section);
+			
+			List<Section> sortedSectionsByOrderId = project.getSections().stream().sorted(Comparator.comparing(Section::getOrderId)).collect(Collectors.toList());
+			
+			int i = 1;
+			for (Section s : sortedSectionsByOrderId) {
+				s.setOrderId(i);
+				i++;
+			}
+			
 			projectRepo.save(project);
 
 			for (Task task : section.getTasks()) {
@@ -344,6 +415,8 @@ public class ProjectController {
 				}
 				taskRepo.delete(task);
 			}
+			
+			sectionRepo.delete(section);
 
 			return new ResponseEntity<>("Section " + section.getTitle() + " was successfully deleted.", HttpStatus.OK);
 
@@ -353,6 +426,8 @@ public class ProjectController {
 		}
 
 	}
+	
+	
 
 	@PreAuthorize("hasRole('ROLE_USER')")
 	@PostMapping("/myprojects/{projectId}/{sectionId}/addtask")
