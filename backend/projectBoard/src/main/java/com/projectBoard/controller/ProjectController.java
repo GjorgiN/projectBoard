@@ -348,26 +348,28 @@ public class ProjectController {
 			}
 			
 			// update the order of tasks and section relation
+			
 			Long updateSectionId = Long.parseLong(sectionUpdates.getId());
 			List<String> tasksOrder = sectionUpdates.getTasksIds();
-			
-			for (String taskId : tasksOrder) {
-				Long sectionId = sectionRepo.findSectionByTaskId(Long.parseLong(taskId));
-				Task task = taskRepo.findById(Long.parseLong(taskId)).get();
-
-				// remove task from old section and add it to the new one
-				if (sectionId != updateSectionId) {
-					Section oldSection = sectionRepo.findById(sectionId).get();
-					oldSection.getTasks().removeIf(t-> t.getId() == task.getId());
-					sectionRepo.save(oldSection);
-					section.getTasks().add(task);
-					
-				}
-				Integer taskOrder = task.getOrderId();
-				Integer updatedTaskOrder = tasksOrder.indexOf(taskId) + 1;
-				if (taskOrder != updatedTaskOrder) {
-					task.setOrderId(updatedTaskOrder);
-					taskRepo.save(task);
+			if (tasksOrder != null) {
+				for (String taskId : tasksOrder) {
+					Long sectionId = sectionRepo.findSectionByTaskId(Long.parseLong(taskId));
+					Task task = taskRepo.findById(Long.parseLong(taskId)).get();
+	
+					// remove task from old section and add it to the new one
+					if (sectionId != updateSectionId) {
+						Section oldSection = sectionRepo.findById(sectionId).get();
+						oldSection.getTasks().removeIf(t-> t.getId() == task.getId());
+						sectionRepo.save(oldSection);
+						section.getTasks().add(task);
+						
+					}
+					Integer taskOrder = task.getOrderId();
+					Integer updatedTaskOrder = tasksOrder.indexOf(taskId) + 1;
+					if (taskOrder != updatedTaskOrder) {
+						task.setOrderId(updatedTaskOrder);
+						taskRepo.save(task);
+					}
 				}
 			}
 			sectionRepo.save(section);
