@@ -9,7 +9,7 @@ const url = 'http://localhost:8080/api/project/myprojects'
 
 
 
-const Projects = () => {
+const Projects = ({isLoggedIn, setIsLoggedIn}) => {
 
   const [ownedProjects, setOwnedProjects] = useState(null);
   const [memberProjects, setMemberProjects] = useState(null);
@@ -32,7 +32,10 @@ const Projects = () => {
 
 
     } catch (error) {
-      console.log(error)
+      console.log("ERROR FROM MY PROJECTS:", error)
+      localStorage.removeItem('user');
+      setIsLoggedIn(!isLoggedIn);
+
     }
 
     return data;
