@@ -6,7 +6,7 @@ import axios from 'axios'
 
 const url = 'http://localhost:8080/api/auth/signin'
 
-const Home = ({isLoggedIn, setIsLoggedIn}) => {
+const Home = ({ isLoggedIn, setIsLoggedIn }) => {
 
 
     const handleSubmit = async (e) => {
@@ -23,16 +23,18 @@ const Home = ({isLoggedIn, setIsLoggedIn}) => {
             method: 'post',
         }
 
-        console.log(JSON.stringify(config));
+        // console.log(JSON.stringify(config));
 
         try {
             const res = await axios(config);
+            console.log("PRINTING FROM RES: ", res);
             localStorage.setItem("user", res.data.token)
             e.target.username.value = '';
             e.target.password.value = '';
             setIsLoggedIn(true);
         } catch (error) {
-            console.log(error)
+            // console.log("cathed error", error.response.status)
+            setIsLoggedIn(false);
         }
     }
 
@@ -47,7 +49,7 @@ const Home = ({isLoggedIn, setIsLoggedIn}) => {
 
     return (
         <>
-            {isLoggedIn ? <MyProjects /> : <LoginForm handleSubmit={handleSubmit} />}
+            {isLoggedIn ? <MyProjects isLoggedIn={isLoggedIn} setIsLoggedIn={setIsLoggedIn} /> : <LoginForm handleSubmit={handleSubmit} />}
         </>
     )
 }
