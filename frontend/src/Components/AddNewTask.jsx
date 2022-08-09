@@ -24,17 +24,18 @@ const AddNewTask = ({showAddTask, setShowAddTask, project, baseUrl, setProject, 
     const addNewTask = (e) => {
         e.preventDefault();
         const token = localStorage.getItem('user')
-        const newSection = {
-            orderId: project.sectionsOrder.length + 1,
+        const newTask = {
+            orderId: 1,
             title: title,
-
+            completed: false,
+            
         }
         const config = {
             headers: {
                 authorization: 'Bearer ' + token
             },
             url: baseUrl + '/' + project.id + '/' + section.id +'/addtask',
-            data: newSection,
+            data: newTask,
             method: 'post'
         }
 
