@@ -1,4 +1,4 @@
-import {Form, Button, Container} from 'react-bootstrap'
+import { Form, Button, Container } from 'react-bootstrap'
 import axios from 'axios';
 import { useState } from 'react';
 
@@ -6,6 +6,8 @@ import { useState } from 'react';
 const AddNewSection = ({ setShowAddSection, showAddSection, project, setProject, baseUrl }) => {
 
     const [title, setTitle] = useState('');
+
+
 
     const cancelNewSection = (e) => {
         setTitle('');
