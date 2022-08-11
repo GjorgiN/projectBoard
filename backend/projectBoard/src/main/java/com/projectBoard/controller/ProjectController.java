@@ -445,9 +445,17 @@ public class ProjectController {
 			Task task = new Task();
 			task.setTitle(newTask.getTitle());
 			task.setCompleted(false);
+			task.setOrderId(newTask.getOrderId());
 
 			Section section = sectionRepo.findById(sectionId).get();
-
+			List<Long> tasksIds = section.getTasks().stream().map(t -> t.getId()).collect(Collectors.toList());
+			for (Long tId : tasksIds) {
+				Task t = taskRepo.findById(tId).get();
+				Integer taskOrderId = t.getOrderId();
+				t.setOrderId(taskOrderId+1);
+				taskRepo.save(t);
+			}
+			
 			taskRepo.save(task);
 
 			section.getTasks().add(task);
