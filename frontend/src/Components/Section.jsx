@@ -69,7 +69,7 @@ const Section = ({ project, setProject, section, tasks, projectId }) => {
 
 
     return (
-        <Container style={{ margin: '0 0.3rem', padding: "0 0.3rem", backgroundColor: 'rgba(238,202,252,0.4)', borderRadius: '0.3rem' }}>
+        <Container style={{ margin: '0 0.3rem', padding: "0 0.3rem", backgroundColor: 'rgba(238,202,252,0.4)', borderRadius: '0.3rem', }}>
             <Container style={{ width: "18rem" }} className="d-flex m-1 px-0 justify-content-between align-items-center">
                 {!showRename && <h5 onMouseOver={e => e.target.style.cursor = 'pointer'} onClick={(e) => renameSection(e)} className="d-flex" style={{ maxWidth: '15rem', minHeight: '1rem', margin: '0.3rem 0', color: 'blueviolet', backgroundColor: 'yellowgreen' }}>{section.title}</h5>}
                 {showRename && <RenameSection section={section} project={project} setProject={setProject} showRename={showRename} setShowRename={setShowRename} />}
@@ -81,9 +81,9 @@ const Section = ({ project, setProject, section, tasks, projectId }) => {
                     <Button onClick={() => setShowAddTask(!showAddTask)} style={{ borderRadius: "2px", transition: 'all ease 0.4s' }} variant="outline-secondary">Add Task</Button>
                 </div>}
 
-            {showAddTask && <AddNewTask section={section} showAddTask={showAddTask} setShowAddTask={setShowAddTask} />}
+            {showAddTask && <AddNewTask setProject={setProject} project={project} baseUrl={baseUrl} section={section} showAddTask={showAddTask} setShowAddTask={setShowAddTask} />}
 
-            <Container className="px-0">
+            <Container className="px-0 d-flex flex-column">
 
                 {section.tasksIds.map(task => <Task key={task} task={tasks[task]} />)}
 
