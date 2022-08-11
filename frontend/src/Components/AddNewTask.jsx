@@ -2,7 +2,7 @@ import { useState } from "react";
 import { Form, Container, Button } from "react-bootstrap";
 import axios from 'axios'
 
-const AddNewTask = ({showAddTask, setShowAddTask, project, baseUrl, setProject, section}) => {
+const AddNewTask = ({ showAddTask, setShowAddTask, project, baseUrl, setProject, section }) => {
 
     const [title, setTitle] = useState('');
 
@@ -28,13 +28,13 @@ const AddNewTask = ({showAddTask, setShowAddTask, project, baseUrl, setProject, 
             orderId: 1,
             title: title,
             completed: false,
-            
+
         }
         const config = {
             headers: {
                 authorization: 'Bearer ' + token
             },
-            url: baseUrl + '/' + project.id + '/' + section.id +'/addtask',
+            url: baseUrl + '/' + project.id + '/' + section.id + '/addtask',
             data: newTask,
             method: 'post'
         }
@@ -42,17 +42,24 @@ const AddNewTask = ({showAddTask, setShowAddTask, project, baseUrl, setProject, 
         axios(config)
             .then(res => {
                 console.log(res.data);
-                const sectionRes = res.data;
-                const sectionResId = sectionRes.id;
+                const savedTask = res.data;
+                const taskId = savedTask.id;
+                const newTasks = { ...project.tasks };
+
+                for (const tId in newTasks) {
+                    newTasks[tId].orderId++;
+                }
+
+                newTasks[taskId] = savedTask;
+
                 const newSections = { ...project.sections }
-                newSections[sectionResId] = sectionRes;
-                const newSectionsOrder = Array.from(project.sectionsOrder);
-                newSectionsOrder.push(sectionResId.toString());
+
+                newSections[section.id].tasksIds.unshift(taskId.toString());
 
                 const newProject = {
                     ...project,
                     sections: newSections,
-                    sectionsOrder: newSectionsOrder,
+                    tasks: newTasks,
                 }
 
 
