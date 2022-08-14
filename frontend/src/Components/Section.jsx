@@ -1,6 +1,6 @@
 import { Button, Container } from "react-bootstrap"
 import Task from "./Task"
-import deleteXSection from "../../node_modules/bootstrap-icons/icons/x-lg.svg"
+import trashBin from "../../node_modules/bootstrap-icons/icons/trash3.svg"
 import { useState } from "react"
 import axios from 'axios'
 import RenameSection from "./RenameSection"
@@ -37,6 +37,7 @@ const Section = ({ project, setProject, section, tasks, projectId }) => {
 
                 const newSectionsOrder = project.sectionsOrder.filter(s => s !== section.id);
 
+                //copy tasks to project which are not in the section which will be deleted
                 const newTasks = {};
                 for (const key in project.tasks) {
                     if (!section.tasksIds.includes(key))
@@ -73,7 +74,7 @@ const Section = ({ project, setProject, section, tasks, projectId }) => {
             <Container style={{ width: "18rem" }} className="d-flex m-1 px-0 justify-content-between align-items-center">
                 {!showRename && <h5 onMouseOver={e => e.target.style.cursor = 'pointer'} onClick={(e) => renameSection(e)} className="d-flex" style={{ maxWidth: '15rem', minHeight: '1rem', margin: '0.3rem 0', color: 'blueviolet', backgroundColor: 'yellowgreen' }}>{section.title}</h5>}
                 {showRename && <RenameSection section={section} project={project} setProject={setProject} showRename={showRename} setShowRename={setShowRename} />}
-                {!showRename && <Button onClick={(e) => deleteSection(e)} variant="outline"><img height="22rem" src={deleteXSection} /></Button>}
+                {!showRename && <Button className="px-1" onClick={(e) => deleteSection(e)} variant="outline-danger"><img height="22rem" src={trashBin} /></Button>}
             </Container>
 
             {!showAddTask &&
@@ -85,7 +86,7 @@ const Section = ({ project, setProject, section, tasks, projectId }) => {
 
             <Container className="px-0 d-flex flex-column">
 
-                {section.tasksIds.map(task => <Task key={task} task={tasks[task]} />)}
+                {section.tasksIds.map(task => <Task baseUrl={baseUrl} project={project} setProject={setProject} section={section} key={task} task={tasks[task]} />)}
 
             </Container>
 
