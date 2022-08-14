@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react'
+import React, { useEffect, useRef, useState } from 'react'
 import { Container, Button } from 'react-bootstrap';
 import { Link, useParams } from 'react-router-dom'
 import axios from 'axios'
@@ -49,30 +49,6 @@ const Project = ({ setIsLoggedIn, isLoggedIn }) => {
 
     }, [isLoaded])
 
-    const toggleShowAddSectionByClickingElsewhere = e => {
-        e.preventDefault();
-        e.stopImmediatePropagation()
-        if (e.target.id !== 'addSection') {
-            setShowAddSection(false);
-        }
-    }
-
-    useEffect(() => {
-
-        console.log('hola muchachos')
-        document.addEventListener('click', toggleShowAddSectionByClickingElsewhere)
-        return () => {
-            console.log('adios muchachos')
-            document.removeEventListener('click', toggleShowAddSectionByClickingElsewhere)
-        }
-
-    });
-
-    useEffect(() => {
-        if (showAddSection)
-            window.scrollBy({ left: 300, behavior: 'smooth' })
-    }, [showAddSection])
-
 
     return (
         <>
@@ -87,7 +63,7 @@ const Project = ({ setIsLoggedIn, isLoggedIn }) => {
                             {!showAddSection && <Button id='addSection' onClick={() => { setShowAddSection(!showAddSection); }} className='d-flex justify-content-center align-items-center' style={{ width: '12rem', height: 'max-content' }} variant='light'>
                                 <img className='me-1' width='24rem' src={plusLg} />New Section</Button>}
                             {
-                                showAddSection && <AddNewSection baseUrl={baseUrl} project={project} setProject={setProject} showAddSection={showAddSection} setShowAddSection={setShowAddSection} />
+                                showAddSection && <AddNewSection id='addNewSectionComponent' baseUrl={baseUrl} project={project} setProject={setProject} showAddSection={showAddSection} setShowAddSection={setShowAddSection} />
                             }
 
                         </div>
