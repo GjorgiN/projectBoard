@@ -482,11 +482,25 @@ public class ProjectController {
 
 			Section section = sectionRepo.findById(sectionId).get();
 			Task task = taskRepo.findById(taskId).get();
-			section.getTasks().remove(task);
+			
+			Integer taskOrderId = task.getOrderId();
+			
+			List<Long>tasksIdsToBeUpdated = section.getTasks().stream()
+					.filter(t -> t.getOrderId() > taskOrderId)
+					.map( t -> t.getId())
+					.collect(Collectors.toList());
+			
+			for (Long tId : tasksIdsToBeUpdated) {
+				Task taskToBeUpdated = taskRepo.findById(tId).get();
+				taskToBeUpdated.setOrderId(taskToBeUpdated.getOrderId() - 1);
+				taskRepo.save(taskToBeUpdated);
+			}
+			
+			section.getTasks().removeIf(t -> t.getId() == taskId);
+			
 			sectionRepo.save(section);
-
 			taskRepo.delete(task);
-
+			
 			return new ResponseEntity<>("Task " + task.getTitle() + " was successfully deleted", HttpStatus.OK);
 		} catch (Exception e) {
 			e.printStackTrace();
