@@ -1,11 +1,43 @@
 import { Form, Button, Container } from 'react-bootstrap'
 import axios from 'axios';
-import { useState } from 'react';
+import { useState, useEffect, useRef } from 'react';
 
 
 const AddNewSection = ({ setShowAddSection, showAddSection, project, setProject, baseUrl }) => {
 
     const [title, setTitle] = useState('');
+    const addBtnRef = useRef();
+    const inputRef = useRef();
+
+    // close component if click target is not the input or add button/ submit event
+    const toggleShowAddSectionByClickingElsewhere = e => {
+        let flag = false;
+
+        if (e.type === 'click' && e.target === addBtnRef.current || e.target === inputRef.current || e.target.id === 'addSection') {
+            flag = true;
+        }
+
+        if (!flag) {
+            setShowAddSection(false);
+        }
+    };
+
+
+    useEffect(() => {
+
+        console.log('hola muchachos')
+        document.addEventListener('click', toggleShowAddSectionByClickingElsewhere)
+        return () => {
+            console.log('adios muchachos')
+            document.removeEventListener('click', toggleShowAddSectionByClickingElsewhere)
+        }
+
+    });
+
+    useEffect(() => {
+        if (showAddSection)
+            window.scrollBy({ left: 300, behavior: 'smooth' })
+    }, [showAddSection])
 
 
 
@@ -70,10 +102,10 @@ const AddNewSection = ({ setShowAddSection, showAddSection, project, setProject,
         <Form onSubmit={(e) => addNewSection(e)} style={{ width: "18rem" }} className="mx-1 mb-2 align-items-center justify-content-center">
             <Form.Group className="my-1" controlId="sectionTitle">
                 <Form.Label className="d-none">Section Title</Form.Label>
-                <Form.Control required autoFocus onKeyUp={e => { checkKey(e) }} onChange={(e) => { setTitle(e.target.value) }} value={title} type="text" placeholder="Section Title" />
+                <Form.Control ref={inputRef} required autoFocus onKeyUp={e => { checkKey(e) }} onChange={(e) => { setTitle(e.target.value) }} value={title} type="text" placeholder="Section Title" />
             </Form.Group>
             <Container className="d-flex px-0 pt-1 justify-content-around">
-                <Button variant="outline-success" type="submit">Add</Button>
+                <Button ref={addBtnRef} variant="outline-success" type="submit">Add</Button>
                 <Button onClick={e => cancelNewSection(e)} variant="outline-danger" type="button">Cancel</Button>
 
             </Container>
