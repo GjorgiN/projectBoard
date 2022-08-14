@@ -11,6 +11,8 @@ import lombok.NoArgsConstructor;
 public class TaskUpdateRequest {
 
 	Long id;
+	
+	Integer orderId;
 
 	String title;
 
