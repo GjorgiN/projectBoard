@@ -33,7 +33,7 @@ const Projects = ({isLoggedIn, setIsLoggedIn}) => {
 
     } catch (error) {
       console.log("ERROR FROM MY PROJECTS:", error)
-      localStorage.removeItem('user');
+      // localStorage.removeItem('user');
       setIsLoggedIn(!isLoggedIn);
 
     }
