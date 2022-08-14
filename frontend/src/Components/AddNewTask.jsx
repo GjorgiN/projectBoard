@@ -44,7 +44,7 @@ const AddNewTask = ({ showAddTask, setShowAddTask, project, baseUrl, setProject,
                 console.log(res.data);
                 const savedTask = res.data;
                 const taskId = savedTask.id;
-                const newTasks = { ...project.tasks };
+                const newTasks = { ...project.tasks || {} };
 
                 for (const tId in newTasks) {
                     newTasks[tId].orderId++;
