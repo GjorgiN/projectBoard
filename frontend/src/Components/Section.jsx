@@ -86,7 +86,7 @@ const Section = ({ project, setProject, section, tasks, projectId }) => {
 
             <Container className="px-0 d-flex flex-column">
 
-                {section.tasksIds.map(task => <Task baseUrl={baseUrl} project={project} setProject={setProject} section={section} key={task} task={tasks[task]} />)}
+                {section.tasksIds.map(task => <Task baseUrl={baseUrl} project={project} setProject={setProject} section={section} key={task.id} task={tasks[task]} />)}
 
             </Container>
 
