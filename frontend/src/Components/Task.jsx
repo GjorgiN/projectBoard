@@ -19,9 +19,9 @@ registerLocale('uk', uk)
 
 const Task = ({ task, section, project, setProject, baseUrl }) => {
 
-    const [isCompleted, setIsCompleted] = useState(task.completed);
-    const [dueDate, setDueDate] = useState(task.dueDate)
-    const [showDueDatePicker, setShowDueDatePicker] = useState(task.dueDate);
+    // change dueDate with state isOverdue and handle project.task.dueDate as prop in the task component
+    const [dueDate, setDueDate] = useState(task.dueDate ? new Date(Number.parseInt(task.dueDate.slice(0, 4)), Number.parseInt(task.dueDate.slice(5, 7)), Number.parseInt(task.dueDate.slice(8))).getTime() : null);
+    const [showDueDatePicker, setShowDueDatePicker] = useState(false);
 
     const getDueDateInStringDDMMYYYY = (dueDate) => {
         if (!dueDate) return '';
@@ -42,12 +42,12 @@ const Task = ({ task, section, project, setProject, baseUrl }) => {
     const updateTaskStatus = (e) => {
         e.preventDefault();
 
-        const taskNewStatus = !isCompleted;
+        const taskNewStatus = !task.completed;
 
         const taskId = task.id.toString();
         const sectionId = section.id.toString();
         const projectId = project.id.toString();
-        const url = `${baseUrl} /${projectId}/${sectionId} /updatetask`
+        const url = `${baseUrl}/${projectId}/${sectionId}/updatetask`
         const token = localStorage.getItem('user');
 
         const data = {
@@ -71,8 +71,13 @@ const Task = ({ task, section, project, setProject, baseUrl }) => {
 
         axios(config)
             .then(res => {
-                setIsCompleted(taskNewStatus);
-                project.tasks[taskId].completed = isCompleted;
+                const newProject = { ...project };
+                const newTask = { ...task };
+                newTask.completed = taskNewStatus;
+                newProject.tasks[taskId] = newTask;
+
+                setProject(newProject);
+
                 console.log(res);
             })
             .catch(err => {
@@ -134,16 +139,16 @@ const Task = ({ task, section, project, setProject, baseUrl }) => {
     return (
         <Card className="m-1 myTask d-flex">
             <Card.Body>
-                <Card.Title className="mb-2">{task.title}
+                <Card.Title className="mb-2">{task.title}</Card.Title>
 
-                </Card.Title>
                 <Card.Text className="mb-1">{task.description || 'no description...'}</Card.Text>
 
-                <Container className=" d-flex mx-0 px-0 mb-1 justify-content-start align-items-center">
+                <Container className="d-flex mx-0 px-0 mb-1 align-items-top">
 
-                    <img ref={dueDateImgRef} className="me-1 d-flex" onMouseOver={(e) => e.target.style.cursor = 'pointer'} onClick={() => setShowDueDatePicker(!showDueDatePicker)} height={"25rem"} src={dueDate ? dueDateSet : calendar} alt="calendar for unset due date with opacity" />
+                    <img ref={dueDateImgRef} className="me-1 d-flex" onMouseOver={(e) => e.target.style.cursor = 'pointer'} onClick={() => setShowDueDatePicker(true)} height={"25rem"} src={dueDate ? dueDateSet : calendar} alt="calendar for unset due date with opacity" />
 
-                    {dueDate !== null && !showDueDatePicker && dueDate < new Date().getTime() ? <img className="d-flex me-1" height="25rem" src={warningDueDatePassed} /> : null}
+                    {dueDate !== null && !showDueDatePicker && (task.dueDate < new Date().getTime())
+                        && <img className="d-flex me-1" height="22rem" src={warningDueDatePassed} />}
 
                     {!showDueDatePicker && <span className="d-flex">
                         {String(getDueDateInStringDDMMYYYY(dueDate))}
@@ -151,24 +156,14 @@ const Task = ({ task, section, project, setProject, baseUrl }) => {
 
 
                     {showDueDatePicker &&
-                        <DueDatePicker dueDateImgRef={dueDateImgRef} showDueDatePicker={showDueDatePicker} setShowDueDatePicker={setShowDueDatePicker} dueDate={dueDate} setDueDate={setDueDate} />
+                        <DueDatePicker task={task} project={project} setProject={setProject} baseUrl={baseUrl} dueDateImgRef={dueDateImgRef} showDueDatePicker={showDueDatePicker} setShowDueDatePicker={setShowDueDatePicker} dueDate={dueDate} setDueDate={setDueDate} />
                     }
-                    {/* <div className="d-flex mb-1" style={dueDate ? { width: "70%" } : { width: "70%" }}> */}
-
-                    {/* <DatePicker isClearable showMonthDropdown showYearDropdown dropdownMode="select" placeholderText="Due Date: dd-MM-yyyy" showWeekNumbers dateFormat='dd-MM-yyyy' locale='uk' selected={dueDate} onChange={date => { date ? setDueDate(date.getTime()) : setDueDate(null); setShowDueDatePicker(false); }} /> */}
-
-                    {/* </div> */}
-
 
                 </Container>
 
-
-                <span onClick={(e) => updateTaskStatus(e)} className={isCompleted ? "btn btn-sm btn-success p-0 my-0 me-1" : "btn btn-sm btn-outline-secondary p-0 my-0 me-1"}>
+                <span onClick={(e) => updateTaskStatus(e)} className={task.completed ? "btn btn-sm btn-success p-0 my-0 me-1" : "btn btn-sm btn-outline-secondary p-0 my-0 me-1"}>
                     <img height="24rem" src={taskCompleted} />
                 </span>
-
-
-
 
                 <Container className="d-flex flex-row-reverse m-0 p-0">
                     <Button onClick={deleteTask} variant="outline-danger" className="mx-1 p-1"><img height="22rem" src={trashBin} /></Button>
