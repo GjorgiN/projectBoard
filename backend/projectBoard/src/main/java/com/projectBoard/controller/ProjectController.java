@@ -25,6 +25,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.projectBoard.entity.Project;
@@ -38,6 +39,7 @@ import com.projectBoard.repository.UserRepository;
 import com.projectBoard.request.ProjectReqRes;
 import com.projectBoard.request.SectionResReq;
 import com.projectBoard.request.TaskUpdateRequest;
+import com.projectBoard.request.UpdateTaskDueDateReq;
 
 @RestController
 @RequestMapping("/api/project")
@@ -112,22 +114,22 @@ public class ProjectController {
 
 			// probably doesn't need to perform this check since owners are not in members
 			// set
-			if(!memberOfProjects.isEmpty())
+			if (!memberOfProjects.isEmpty())
 				memberOfProjects.get().removeIf(p -> ownedProjects.get().contains(p));
 
 			Map<String, List<ProjectReqRes>> allProjects = new HashMap<>();
-			
-			if(!ownedProjects.isEmpty()) {
-				List<ProjectReqRes> ownedProjectsReqRes = ownedProjects.get().stream().map(p -> transformProjectDbResReq(p))
-						.collect(Collectors.toList());
+
+			if (!ownedProjects.isEmpty()) {
+				List<ProjectReqRes> ownedProjectsReqRes = ownedProjects.get().stream()
+						.map(p -> transformProjectDbResReq(p)).collect(Collectors.toList());
 				allProjects.put("ownedProjects", ownedProjectsReqRes);
-	
+
 			} else {
 				List<ProjectReqRes> ownedProjectsReqRes = null;
 				allProjects.put("ownedProjects", ownedProjectsReqRes);
 			}
-			
-			if(!memberOfProjects.isEmpty()) {
+
+			if (!memberOfProjects.isEmpty()) {
 				List<ProjectReqRes> memberOfProjectsReqRes = memberOfProjects.get().stream()
 						.map(p -> transformProjectDbResReq(p)).collect(Collectors.toList());
 				allProjects.put("onlyMember", memberOfProjectsReqRes);
@@ -313,8 +315,9 @@ public class ProjectController {
 
 			sectionRepo.save(section);
 			projectRepo.save(project);
-			
-			SectionResReq sectionResReq = new SectionResReq(section.getId().toString(), section.getTitle(),section.getDescription(),new ArrayList<String>());
+
+			SectionResReq sectionResReq = new SectionResReq(section.getId().toString(), section.getTitle(),
+					section.getDescription(), new ArrayList<String>());
 
 			return new ResponseEntity<>(sectionResReq, HttpStatus.OK);
 		} catch (Exception e) {
@@ -324,7 +327,7 @@ public class ProjectController {
 		}
 
 	}
-	
+
 	@PreAuthorize("hasRole('ROLE_USER')")
 	@PutMapping("/myprojects/{projectId}")
 	public ResponseEntity<?> updateSection(@PathVariable Long projectId, @RequestBody SectionResReq sectionUpdates) {
@@ -332,37 +335,37 @@ public class ProjectController {
 			if (getUserCredentialsPerProject(projectId) != "owner") {
 				return new ResponseEntity<>(HttpStatus.UNAUTHORIZED);
 			}
-			
+
 			Section section = sectionRepo.findById(Long.parseLong(sectionUpdates.getId())).get();
 
-			//update title
+			// update title
 			String updatedTitle = sectionUpdates.getTitle();
 			if (updatedTitle != null && section.getTitle() != updatedTitle) {
 				section.setTitle(updatedTitle);
 			}
-			
-			//update description
+
+			// update description
 			String updatedDescription = sectionUpdates.getDescription();
 			if (updatedDescription != null && section.getDescription() != updatedDescription) {
 				section.setDescription(updatedDescription);
 			}
-			
+
 			// update the order of tasks and section relation
-			
+
 			Long updateSectionId = Long.parseLong(sectionUpdates.getId());
 			List<String> tasksOrder = sectionUpdates.getTasksIds();
 			if (tasksOrder != null) {
 				for (String taskId : tasksOrder) {
 					Long sectionId = sectionRepo.findSectionByTaskId(Long.parseLong(taskId));
 					Task task = taskRepo.findById(Long.parseLong(taskId)).get();
-	
+
 					// remove task from old section and add it to the new one
 					if (sectionId != updateSectionId) {
 						Section oldSection = sectionRepo.findById(sectionId).get();
-						oldSection.getTasks().removeIf(t-> t.getId() == task.getId());
+						oldSection.getTasks().removeIf(t -> t.getId() == task.getId());
 						sectionRepo.save(oldSection);
 						section.getTasks().add(task);
-						
+
 					}
 					Integer taskOrder = task.getOrderId();
 					Integer updatedTaskOrder = tasksOrder.indexOf(taskId) + 1;
@@ -373,17 +376,13 @@ public class ProjectController {
 				}
 			}
 			sectionRepo.save(section);
-			
-			
-			return new ResponseEntity<>(HttpStatus.ACCEPTED);
-			} catch (Exception e) {
-				System.out.println(e);
-				return new ResponseEntity<>(e.getLocalizedMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
-			}
-		}
 
-	
-	
+			return new ResponseEntity<>(HttpStatus.ACCEPTED);
+		} catch (Exception e) {
+			System.out.println(e);
+			return new ResponseEntity<>(e.getLocalizedMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
+		}
+	}
 
 	@PreAuthorize("hasRole('ROLE_USER')")
 	@DeleteMapping("/myprojects/{projectId}/{sectionId}")
@@ -398,15 +397,16 @@ public class ProjectController {
 
 			Project project = projectRepo.findById(projectId).get();
 			project.getSections().remove(section);
-			
-			List<Section> sortedSectionsByOrderId = project.getSections().stream().sorted(Comparator.comparing(Section::getOrderId)).collect(Collectors.toList());
-			
+
+			List<Section> sortedSectionsByOrderId = project.getSections().stream()
+					.sorted(Comparator.comparing(Section::getOrderId)).collect(Collectors.toList());
+
 			int i = 1;
 			for (Section s : sortedSectionsByOrderId) {
 				s.setOrderId(i);
 				i++;
 			}
-			
+
 			projectRepo.save(project);
 
 			for (Task task : section.getTasks()) {
@@ -417,7 +417,7 @@ public class ProjectController {
 				}
 				taskRepo.delete(task);
 			}
-			
+
 			sectionRepo.delete(section);
 
 			return new ResponseEntity<>("Section " + section.getTitle() + " was successfully deleted.", HttpStatus.OK);
@@ -428,8 +428,6 @@ public class ProjectController {
 		}
 
 	}
-	
-	
 
 	@PreAuthorize("hasRole('ROLE_USER')")
 	@PostMapping("/myprojects/{projectId}/{sectionId}/addtask")
@@ -452,10 +450,10 @@ public class ProjectController {
 			for (Long tId : tasksIds) {
 				Task t = taskRepo.findById(tId).get();
 				Integer taskOrderId = t.getOrderId();
-				t.setOrderId(taskOrderId+1);
+				t.setOrderId(taskOrderId + 1);
 				taskRepo.save(t);
 			}
-			
+
 			taskRepo.save(task);
 
 			section.getTasks().add(task);
@@ -482,30 +480,54 @@ public class ProjectController {
 
 			Section section = sectionRepo.findById(sectionId).get();
 			Task task = taskRepo.findById(taskId).get();
-			
+
 			Integer taskOrderId = task.getOrderId();
-			
-			List<Long>tasksIdsToBeUpdated = section.getTasks().stream()
-					.filter(t -> t.getOrderId() > taskOrderId)
-					.map( t -> t.getId())
-					.collect(Collectors.toList());
-			
+
+			List<Long> tasksIdsToBeUpdated = section.getTasks().stream().filter(t -> t.getOrderId() > taskOrderId)
+					.map(t -> t.getId()).collect(Collectors.toList());
+
 			for (Long tId : tasksIdsToBeUpdated) {
 				Task taskToBeUpdated = taskRepo.findById(tId).get();
 				taskToBeUpdated.setOrderId(taskToBeUpdated.getOrderId() - 1);
 				taskRepo.save(taskToBeUpdated);
 			}
-			
+
 			section.getTasks().removeIf(t -> t.getId() == taskId);
-			
+
 			sectionRepo.save(section);
 			taskRepo.delete(task);
-			
+
 			return new ResponseEntity<>("Task " + task.getTitle() + " was successfully deleted", HttpStatus.OK);
 		} catch (Exception e) {
 			e.printStackTrace();
 			return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
 		}
+	}
+
+	@PreAuthorize("hasRole('ROLE_USER')")
+	@PutMapping("/myprojects/task")
+	public ResponseEntity<?> updateTaskDueDate(@RequestParam Long projectId, @RequestParam(name = "taskId") Long taskId,
+			@RequestParam(name = "dueDate", required = false) Long dueDate) {
+		try {
+			if (getUserCredentialsPerProject(projectId) != "owner") {
+				return new ResponseEntity<>(HttpStatus.UNAUTHORIZED);
+			}
+			
+			Task task = taskRepo.findById(taskId).get();
+			Date updateDueDate = dueDate != null ? new Date(dueDate) : null;
+			if (task.getDueDate() != updateDueDate) {
+				task.setDueDate(updateDueDate);
+				taskRepo.save(task);
+				return new ResponseEntity<>("Due date updated successfully to " + updateDueDate, HttpStatus.ACCEPTED);
+			}
+			
+			return new ResponseEntity<>("Same due date, update not needed", HttpStatus.OK);
+
+		} catch (Exception e) {
+			System.out.println(e);
+			return new ResponseEntity<>(e.getLocalizedMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
+		}
+
 	}
 
 	@PreAuthorize("hasRole('ROLE_USER')")
@@ -535,6 +557,10 @@ public class ProjectController {
 			Long dueDate = taskUpdates.getDueDate();
 			if (dueDate != null) {
 				task.setDueDate(new Date(dueDate));
+			}
+
+			if (task.getDueDate() != null && dueDate == null) {
+				task.setDueDate(null);
 			}
 
 			String title = taskUpdates.getTitle();
