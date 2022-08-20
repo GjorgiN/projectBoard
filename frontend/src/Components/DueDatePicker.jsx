@@ -11,7 +11,7 @@ import axios from "axios"
 
 registerLocale('uk', uk)
 
-const DueDatePicker = ({ dueDate, setDueDate, setShowDueDatePicker, showDueDatePicker, dueDateImgRef, baseUrl, task, project, setProject }) => {
+const DueDatePicker = ({ dueDate, setShowDueDatePicker, showDueDatePicker, setIsOverdue, dueDateImgRef, baseUrl, task, project, setProject }) => {
 
     const [tempDueDate, setTempDueDate] = useState(dueDate);
 
@@ -42,25 +42,25 @@ const DueDatePicker = ({ dueDate, setDueDate, setShowDueDatePicker, showDueDateP
         axios(config)
             .then(res => {
                 console.log(res);
-                
+
                 const newDueDate = new Date(tempDueDate);
-                
+
                 let newDay = newDueDate.getDate();
                 newDay = newDay < 10 ? '0' + newDay : newDay;
-                
+
                 let newMonth = newDueDate.getMonth() + 1;
                 newMonth = newMonth < 10 ? '0' + newMonth : newMonth;
-                
+
                 const newDueDateStr = `${newDueDate.getFullYear()}-${newMonth}-${newDay}`;
-                
+
                 const newTasks = { ...project.tasks }
                 newTasks[task.id].dueDate = newDueDateStr;
-                
+
                 const newProject = { ...project, tasks: newTasks };
-                
+
                 setShowDueDatePicker(false)
                 setProject(newProject);
-                setDueDate(tempDueDate);
+                setIsOverdue(tempDueDate ? tempDueDate < new Date().getTime() : false)
 
             })
             .catch(err => {
