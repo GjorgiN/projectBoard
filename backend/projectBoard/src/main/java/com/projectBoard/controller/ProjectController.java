@@ -553,15 +553,16 @@ public class ProjectController {
 					task.setAssignedUser(assignedUser);
 				}
 			}
-
-			Long dueDate = taskUpdates.getDueDate();
-			if (dueDate != null) {
-				task.setDueDate(new Date(dueDate));
-			}
-
-			if (task.getDueDate() != null && dueDate == null) {
-				task.setDueDate(null);
-			}
+			
+			// MOVED TO updateTaskDueDate route
+//			Long dueDate = taskUpdates.getDueDate();
+//			if (dueDate != null) {
+//				task.setDueDate(new Date(dueDate));
+//			}
+//
+//			if (task.getDueDate() != null && dueDate == null) {
+//				task.setDueDate(null);
+//			}
 
 			String title = taskUpdates.getTitle();
 			if (title != null) {
