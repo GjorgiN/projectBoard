@@ -7,32 +7,42 @@ import taskCompleted from "../../node_modules/bootstrap-icons/icons/check2.svg"
 import { useRef, useState } from "react"
 import axios from "axios"
 import warningDueDatePassed from "../assets/warningDueDatePassed.svg"
-
-import DatePicker from "react-datepicker"
-import "react-datepicker/dist/react-datepicker.css"
-import "./reactDatePickerWidthFix.css"
-import uk from "date-fns/locale/en-GB"
-import { registerLocale } from "react-datepicker"
 import DueDatePicker from "./DueDatePicker"
-registerLocale('uk', uk)
 
 
 const Task = ({ task, section, project, setProject, baseUrl }) => {
+    const { dueDate } = task;
+
+    // YYYY-MM-DD, 2022-09-01, return epoch/number/long
+    const getNumberFromDateStrYYYYMMDD = date => {
+        if (date === null) {
+            return null;
+        }
+
+        const year = Number(date.slice(0, 4));
+        const month = Number(date.slice(5, 7)) - 1;
+        const day = Number(date.slice(8));
+        const dateAsDateFormat = new Date(year, month, day);
+
+        return dateAsDateFormat.getTime();
+    }
+
 
     // change dueDate with state isOverdue and handle project.task.dueDate as prop in the task component
-    const [dueDate, setDueDate] = useState(task.dueDate ? new Date(Number.parseInt(task.dueDate.slice(0, 4)), Number.parseInt(task.dueDate.slice(5, 7)), Number.parseInt(task.dueDate.slice(8))).getTime() : null);
     const [showDueDatePicker, setShowDueDatePicker] = useState(false);
+    const [isOverdue, setIsOverdue] = useState(dueDate ? getNumberFromDateStrYYYYMMDD(dueDate) < new Date().getTime() : false);
 
-    const getDueDateInStringDDMMYYYY = (dueDate) => {
-        if (!dueDate) return '';
 
-        const dateAsDate = new Date(dueDate);
+    const getDueDateInStringDDMMYYYY = (date) => {
+        if (date === null) return '';
+
+        const dateAsDate = new Date(date);
 
         const dOfMonth = dateAsDate.getDate();
         const dayOfMonth = dOfMonth < 10 ? `0${dOfMonth}` : dOfMonth;
 
         const monthNum = dateAsDate.getMonth();
-        const month = monthNum < 10 ? `0${monthNum}` : monthNum;
+        const month = monthNum < 10 ? `0${monthNum + 1}` : monthNum;
 
         const dateAsString = `${dayOfMonth}-${month}-${dateAsDate.getFullYear()}`
 
@@ -144,24 +154,25 @@ const Task = ({ task, section, project, setProject, baseUrl }) => {
                 <Card.Text className="mb-1">{task.description || 'no description...'}</Card.Text>
 
                 <Container className="d-flex mx-0 px-0 mb-1 align-items-top">
+                    {
+                        !task.completed && <span className="d-flex justify-content-evenly align-items-center">
+                            <img ref={dueDateImgRef} className="me-1 d-flex" onMouseOver={(e) => e.target.style.cursor = 'pointer'} onClick={() => setShowDueDatePicker(true)} height={"25rem"} src={dueDate ? dueDateSet : calendar} alt="calendar for unset due date with opacity" />
 
-                    <img ref={dueDateImgRef} className="me-1 d-flex" onMouseOver={(e) => e.target.style.cursor = 'pointer'} onClick={() => setShowDueDatePicker(true)} height={"25rem"} src={dueDate ? dueDateSet : calendar} alt="calendar for unset due date with opacity" />
+                            {isOverdue && !showDueDatePicker
+                                && <img className="d-flex me-1" height="22rem" src={warningDueDatePassed} />}
 
-                    {dueDate !== null && !showDueDatePicker && (task.dueDate < new Date().getTime())
-                        && <img className="d-flex me-1" height="22rem" src={warningDueDatePassed} />}
-
-                    {!showDueDatePicker && <span className="d-flex">
-                        {String(getDueDateInStringDDMMYYYY(dueDate))}
-                    </span>}
-
-
-                    {showDueDatePicker &&
-                        <DueDatePicker task={task} project={project} setProject={setProject} baseUrl={baseUrl} dueDateImgRef={dueDateImgRef} showDueDatePicker={showDueDatePicker} setShowDueDatePicker={setShowDueDatePicker} dueDate={dueDate} setDueDate={setDueDate} />
+                            {!showDueDatePicker && <span className="d-flex">
+                                {String(getDueDateInStringDDMMYYYY(dueDate))}
+                            </span>}
+                        </span>
                     }
 
+                    {showDueDatePicker &&
+                        <DueDatePicker task={task} project={project} setProject={setProject} baseUrl={baseUrl} dueDateImgRef={dueDateImgRef} showDueDatePicker={showDueDatePicker} setShowDueDatePicker={setShowDueDatePicker} setIsOverdue={setIsOverdue} />
+                    }
                 </Container>
 
-                <span onClick={(e) => updateTaskStatus(e)} className={task.completed ? "btn btn-sm btn-success p-0 my-0 me-1" : "btn btn-sm btn-outline-secondary p-0 my-0 me-1"}>
+                <span onClick={(e) => updateTaskStatus(e)} className={task.completed ? "btn btn-sm btn-success p-0 my-0 me-1" : "btn btn-sm btn-outline-success p-0 my-0 me-1"}>
                     <img height="24rem" src={taskCompleted} />
                 </span>
 
