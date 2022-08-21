@@ -3,13 +3,14 @@ import { Container } from 'react-bootstrap'
 import MyNavbar from './MyNavbar'
 import axios from 'axios';
 import ProjectCard from './ProjectCard';
+import { useNavigate } from 'react-router-dom';
 
 const url = 'http://localhost:8080/api/project/myprojects'
 
 
 
 
-const Projects = ({isLoggedIn, setIsLoggedIn}) => {
+const Projects = ({ isLoggedIn, setIsLoggedIn }) => {
 
   const [ownedProjects, setOwnedProjects] = useState(null);
   const [memberProjects, setMemberProjects] = useState(null);
@@ -33,8 +34,10 @@ const Projects = ({isLoggedIn, setIsLoggedIn}) => {
 
     } catch (error) {
       console.log("ERROR FROM MY PROJECTS:", error)
-      // localStorage.removeItem('user');
-      setIsLoggedIn(!isLoggedIn);
+      if (error.response.status === 401) {
+        localStorage.removeItem('user');
+        setIsLoggedIn(!isLoggedIn);
+      }
 
     }
 
