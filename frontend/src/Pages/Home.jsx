@@ -33,8 +33,8 @@ const Home = ({ isLoggedIn, setIsLoggedIn }) => {
             e.target.password.value = '';
             setIsLoggedIn(true);
         } catch (error) {
-            // console.log("cathed error", error.response.status)
-            setIsLoggedIn(false);
+            console.log("cathed error", error.response.status)
+            
         }
     }
 
