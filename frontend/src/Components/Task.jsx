@@ -1,4 +1,4 @@
-import { Card, Container, Button, InputGroup } from "react-bootstrap"
+import { Card, Container, Button, InputGroup, FormControl } from "react-bootstrap"
 import trashBin from "../../node_modules/bootstrap-icons/icons/trash3.svg"
 import arrowsMove from "../../node_modules/bootstrap-icons/icons/arrows-move.svg"
 import calendar from "../assets/calendarDueDateUnset.svg"
@@ -7,7 +7,10 @@ import taskCompleted from "../../node_modules/bootstrap-icons/icons/check2.svg"
 import { useRef, useState } from "react"
 import axios from "axios"
 import warningDueDatePassed from "../assets/warningDueDatePassed.svg"
+import taskHasDescription from "../assets/taskHasDescription.svg"
+import taskHasNotDescription from "../assets/taskHasNotDescription.svg"
 import DueDatePicker from "./DueDatePicker"
+import RenameTask from "./RenameTask"
 
 
 const Task = ({ task, section, project, setProject, baseUrl }) => {
@@ -31,6 +34,8 @@ const Task = ({ task, section, project, setProject, baseUrl }) => {
     // change dueDate with state isOverdue and handle project.task.dueDate as prop in the task component
     const [showDueDatePicker, setShowDueDatePicker] = useState(false);
     const [isOverdue, setIsOverdue] = useState(dueDate ? getNumberFromDateStrYYYYMMDD(dueDate) < new Date().getTime() : false);
+    const [showRenameTask, setShowRenameTask] = useState(false);
+    const [doesTaskHasDescription, setDoesTaskHasDescription] = useState(task.description ? true : false);
 
 
     const getDueDateInStringDDMMYYYY = (date) => {
@@ -148,18 +153,22 @@ const Task = ({ task, section, project, setProject, baseUrl }) => {
 
     return (
         <Card className="m-1 myTask d-flex">
-            <Card.Body>
-                <Card.Title className="mb-2">{task.title}</Card.Title>
+            <Card.Body className="m-1 p-1">
+                {!showRenameTask && <Card.Title onClick={() => { setShowRenameTask(true) }} onMouseOver={(e) => e.target.style.cursor = 'pointer'} className="mb-2">{task.title}</Card.Title>}
+                {showRenameTask && <RenameTask sectionId={section.id} showRenameTask={showRenameTask} setShowRenameTask={setShowRenameTask} task={task} project={project} setProject={setProject} />}
 
-                <Card.Text className="mb-1">{task.description || 'no description...'}</Card.Text>
+
 
                 <Container className="d-flex mx-0 px-0 mb-1 align-items-top">
+                    <span onClick={(e) => updateTaskStatus(e)} className={task.completed ? "btn btn-sm btn-success p-0 my-0 me-1" : "btn btn-sm btn-outline-success p-0 my-0 me-1"}>
+                        <img height="24rem" src={taskCompleted} />
+                    </span>
                     {
                         !task.completed && <span className="d-flex justify-content-evenly align-items-center">
                             <img ref={dueDateImgRef} className="me-1 d-flex" onMouseOver={(e) => e.target.style.cursor = 'pointer'} onClick={() => setShowDueDatePicker(true)} height={"25rem"} src={dueDate ? dueDateSet : calendar} alt="calendar for unset due date with opacity" />
 
                             {isOverdue && !showDueDatePicker
-                                && <img className="d-flex me-1" height="22rem" src={warningDueDatePassed} />}
+                                && <img className="d-flex me-1" height="25rem" src={warningDueDatePassed} />}
 
                             {!showDueDatePicker && <span className="d-flex">
                                 {String(getDueDateInStringDDMMYYYY(dueDate))}
@@ -172,14 +181,15 @@ const Task = ({ task, section, project, setProject, baseUrl }) => {
                     }
                 </Container>
 
-                <span onClick={(e) => updateTaskStatus(e)} className={task.completed ? "btn btn-sm btn-success p-0 my-0 me-1" : "btn btn-sm btn-outline-success p-0 my-0 me-1"}>
-                    <img height="24rem" src={taskCompleted} />
-                </span>
+                <img className="mb-1" height={"25rem"} src={doesTaskHasDescription ? taskHasDescription : taskHasNotDescription} />
+
+
 
                 <Container className="d-flex flex-row-reverse m-0 p-0">
                     <Button onClick={deleteTask} variant="outline-danger" className="mx-1 p-1"><img height="22rem" src={trashBin} /></Button>
                     <Button variant="outline-secondary" className="mx-1 p-1"><img height="22rem" src={arrowsMove} /></Button>
                 </Container>
+
             </Card.Body>
         </Card>
     );
