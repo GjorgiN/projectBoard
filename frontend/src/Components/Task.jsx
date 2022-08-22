@@ -1,4 +1,4 @@
-import { Card, Container, Button, InputGroup, FormControl } from "react-bootstrap"
+import { Card, Container, Button, Modal } from "react-bootstrap"
 import trashBin from "../../node_modules/bootstrap-icons/icons/trash3.svg"
 import arrowsMove from "../../node_modules/bootstrap-icons/icons/arrows-move.svg"
 import calendar from "../assets/calendarDueDateUnset.svg"
@@ -9,8 +9,16 @@ import axios from "axios"
 import warningDueDatePassed from "../assets/warningDueDatePassed.svg"
 import taskHasDescription from "../assets/taskHasDescription.svg"
 import taskHasNotDescription from "../assets/taskHasNotDescription.svg"
+import userIsAssigned from "../assets/userIsAssigned.svg"
+import userNotAssigned from "../assets/userNotAssigned.svg"
 import DueDatePicker from "./DueDatePicker"
 import RenameTask from "./RenameTask"
+import { Tooltip } from "bootstrap"
+import AssignedUser from "./AssignedUser"
+import { getOverlayDirection } from "react-bootstrap/esm/helpers"
+
+import EditTaskDescription from "./EditTaskDescription"
+
 
 
 const Task = ({ task, section, project, setProject, baseUrl }) => {
@@ -36,6 +44,9 @@ const Task = ({ task, section, project, setProject, baseUrl }) => {
     const [isOverdue, setIsOverdue] = useState(dueDate ? getNumberFromDateStrYYYYMMDD(dueDate) < new Date().getTime() : false);
     const [showRenameTask, setShowRenameTask] = useState(false);
     const [doesTaskHasDescription, setDoesTaskHasDescription] = useState(task.description ? true : false);
+    const [doesTaskIsAssigned, setDoesTaskIsAssigned] = useState(task.assignedUser ? true : false);
+    const [showEditDescription, setShowEditDescription] = useState(false);
+
 
 
     const getDueDateInStringDDMMYYYY = (date) => {
@@ -150,6 +161,7 @@ const Task = ({ task, section, project, setProject, baseUrl }) => {
     }
 
     const dueDateImgRef = useRef();
+    const assignedToUser = useRef();
 
     return (
         <Card className="m-1 myTask d-flex">
@@ -181,7 +193,14 @@ const Task = ({ task, section, project, setProject, baseUrl }) => {
                     }
                 </Container>
 
-                <img className="mb-1" height={"25rem"} src={doesTaskHasDescription ? taskHasDescription : taskHasNotDescription} />
+                <Container className="d-flex mx-0 px-0 mb-1 align-items-center">
+
+                    <EditTaskDescription description={task.description} title={task.title} doesTaskHasDescription={doesTaskHasDescription} taskHasDescription={taskHasDescription} taskHasNotDescription={taskHasNotDescription} />
+
+                    <span className="btn btn-sm btn-outline-secondary my-0 p-0 d-flex align-items-center">
+                        <img height="24rem" src={doesTaskIsAssigned ? userIsAssigned : userNotAssigned} />
+                        {doesTaskIsAssigned ? task.assignedUser.username : ''}</span>
+                </Container>
 
 
 
