@@ -195,7 +195,7 @@ const Task = ({ task, section, project, setProject, baseUrl }) => {
 
                 <Container className="d-flex mx-0 px-0 mb-1 align-items-center">
 
-                    <EditTaskDescription description={task.description} title={task.title} doesTaskHasDescription={doesTaskHasDescription} taskHasDescription={taskHasDescription} taskHasNotDescription={taskHasNotDescription} />
+                    <EditTaskDescription sectionId={section.id} task={task} project={project} setProject={setProject} baseUrl={baseUrl} title={task.title} doesTaskHasDescription={doesTaskHasDescription} taskHasDescription={taskHasDescription} taskHasNotDescription={taskHasNotDescription} />
 
                     <span className="btn btn-sm btn-outline-secondary my-0 p-0 d-flex align-items-center">
                         <img height="24rem" src={doesTaskIsAssigned ? userIsAssigned : userNotAssigned} />
