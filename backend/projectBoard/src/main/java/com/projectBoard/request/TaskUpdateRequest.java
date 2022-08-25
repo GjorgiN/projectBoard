@@ -15,6 +15,8 @@ public class TaskUpdateRequest {
 	Integer orderId;
 
 	String title;
+	
+	String description;
 
 	Long dueDate;
 
