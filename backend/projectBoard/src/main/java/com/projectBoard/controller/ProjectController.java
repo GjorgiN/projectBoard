@@ -573,6 +573,11 @@ public class ProjectController {
 			if (attachment != null) {
 				task.setAttachmentLocation(attachment);
 			}
+			
+			String taskDescription = taskUpdates.getDescription();
+			if (taskDescription != null) {
+				task.setDescription(taskDescription);
+			}
 
 			taskRepo.save(task);
 
