@@ -4,7 +4,7 @@ import { Form, FloatingLabel } from 'react-bootstrap';
 import Button from 'react-bootstrap/Button';
 import Modal from 'react-bootstrap/Modal';
 
-const EditTaskDescription = ({ task, project, setProject, sectionId, baseUrl, doesTaskHasDescription, taskHasDescription, taskHasNotDescription, title }) => {
+const EditTaskDescription = ({ task, project, setProject, sectionId, baseUrl, doesTaskHasDescription, setDoesTaskHasDescription, taskHasDescription, taskHasNotDescription, title }) => {
 
     const [show, setShow] = useState(false);
     const [newDescription, setNewDescription] = useState(task.description);
@@ -39,6 +39,7 @@ const EditTaskDescription = ({ task, project, setProject, sectionId, baseUrl, do
                 const newProject = { ...project, newTasks };
                 setShowTextArea(false);
                 setProject(newProject);
+                setDoesTaskHasDescription(newTask.description ? true : false);
                 task.description = newTask.description;
 
 
@@ -73,7 +74,7 @@ const EditTaskDescription = ({ task, project, setProject, sectionId, baseUrl, do
                         showTextArea &&
                         <>
 
-                            <FloatingLabel controlId="taskDescription" label="editDescription">
+                            <FloatingLabel controlId="taskDescription" label="Edit Description">
                                 <Form.Control
                                     value={newDescription || ''}
                                     as="textarea"
