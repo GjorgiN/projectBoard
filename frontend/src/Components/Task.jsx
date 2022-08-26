@@ -14,7 +14,7 @@ import userNotAssigned from "../assets/userNotAssigned.svg"
 import DueDatePicker from "./DueDatePicker"
 import RenameTask from "./RenameTask"
 import { Tooltip } from "bootstrap"
-import AssignedUser from "./AssignedUser"
+import AssignUser from "./AssignUser"
 import { getOverlayDirection } from "react-bootstrap/esm/helpers"
 
 import EditTaskDescription from "./EditTaskDescription"
@@ -45,7 +45,7 @@ const Task = ({ task, section, project, setProject, baseUrl }) => {
     const [showRenameTask, setShowRenameTask] = useState(false);
     const [doesTaskHasDescription, setDoesTaskHasDescription] = useState(task.description ? true : false);
     const [doesTaskIsAssigned, setDoesTaskIsAssigned] = useState(task.assignedUser ? true : false);
-    const [showEditDescription, setShowEditDescription] = useState(false);
+    const [showAssignTask, setShowAssignTask] = useState(false);
 
 
 
@@ -195,11 +195,10 @@ const Task = ({ task, section, project, setProject, baseUrl }) => {
 
                 <Container className="d-flex mx-0 px-0 mb-1 align-items-center">
 
-                    <EditTaskDescription sectionId={section.id} task={task} project={project} setProject={setProject} baseUrl={baseUrl} title={task.title} doesTaskHasDescription={doesTaskHasDescription} taskHasDescription={taskHasDescription} taskHasNotDescription={taskHasNotDescription} />
+                    <EditTaskDescription sectionId={section.id} task={task} project={project} setProject={setProject} baseUrl={baseUrl} title={task.title} doesTaskHasDescription={doesTaskHasDescription} setDoesTaskHasDescription={setDoesTaskHasDescription} taskHasDescription={taskHasDescription} taskHasNotDescription={taskHasNotDescription} />
 
-                    <span className="btn btn-sm btn-outline-secondary my-0 p-0 d-flex align-items-center">
-                        <img height="24rem" src={doesTaskIsAssigned ? userIsAssigned : userNotAssigned} />
-                        {doesTaskIsAssigned ? task.assignedUser.username : ''}</span>
+
+                    <AssignUser showAssignTask={showAssignTask} setShowAssignTask={setShowAssignTask} project={project} task={task} doesTaskIsAssigned={doesTaskIsAssigned} setDoesTaskIsAssigned={setDoesTaskIsAssigned} userIsAssigned={userIsAssigned} userNotAssigned={userNotAssigned} />
                 </Container>
 
 
