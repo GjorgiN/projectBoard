@@ -198,7 +198,7 @@ const Task = ({ task, section, project, setProject, baseUrl }) => {
                     <EditTaskDescription sectionId={section.id} task={task} project={project} setProject={setProject} baseUrl={baseUrl} title={task.title} doesTaskHasDescription={doesTaskHasDescription} setDoesTaskHasDescription={setDoesTaskHasDescription} taskHasDescription={taskHasDescription} taskHasNotDescription={taskHasNotDescription} />
 
 
-                    <AssignUser showAssignTask={showAssignTask} setShowAssignTask={setShowAssignTask} project={project} task={task} doesTaskIsAssigned={doesTaskIsAssigned} setDoesTaskIsAssigned={setDoesTaskIsAssigned} userIsAssigned={userIsAssigned} userNotAssigned={userNotAssigned} />
+                    <AssignUser showAssignTask={showAssignTask} setShowAssignTask={setShowAssignTask} baseUrl={baseUrl} project={project} setProject={setProject} task={task} doesTaskIsAssigned={doesTaskIsAssigned} setDoesTaskIsAssigned={setDoesTaskIsAssigned} userIsAssigned={userIsAssigned} userNotAssigned={userNotAssigned} />
                 </Container>
 
 
