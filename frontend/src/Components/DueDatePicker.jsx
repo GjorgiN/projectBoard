@@ -28,7 +28,7 @@ const DueDatePicker = ({ dueDate, setShowDueDatePicker, showDueDatePicker, setIs
             headers: {
                 authorization: 'Bearer ' + token
             },
-            url: baseUrl + '/task',
+            url: baseUrl + '/taskDueDate',
             params: {
                 taskId: task.id,
                 dueDate: tempDueDate ? tempDueDate : '',
