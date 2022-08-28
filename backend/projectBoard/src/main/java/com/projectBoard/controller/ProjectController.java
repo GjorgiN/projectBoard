@@ -505,7 +505,7 @@ public class ProjectController {
 	}
 
 	@PreAuthorize("hasRole('ROLE_USER')")
-	@PutMapping("/myprojects/task")
+	@PutMapping("/myprojects/taskDueDate")
 	public ResponseEntity<?> updateTaskDueDate(@RequestParam Long projectId, @RequestParam(name = "taskId") Long taskId,
 			@RequestParam(name = "dueDate", required = false) Long dueDate) {
 		try {
@@ -522,6 +522,34 @@ public class ProjectController {
 			}
 			
 			return new ResponseEntity<>("Same due date, update not needed", HttpStatus.OK);
+
+		} catch (Exception e) {
+			System.out.println(e);
+			return new ResponseEntity<>(e.getLocalizedMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
+		}
+
+	}
+	
+	@PreAuthorize("hasRole('ROLE_USER')")
+	@PutMapping("/myprojects/taskAssignUser")
+	public ResponseEntity<?> updateTaskAssignUser(@RequestParam Long projectId, @RequestParam(name = "taskId") Long taskId,
+			@RequestParam(name = "userId", required = false) Long userId) {
+		try {
+			if (getUserCredentialsPerProject(projectId) != "owner") {
+				return new ResponseEntity<>(HttpStatus.UNAUTHORIZED);
+			}
+			
+			Task task = taskRepo.findById(taskId).get();
+			User newUser = userRepo.findById(userId).orElse(null);
+			
+			if (newUser != task.getAssignedUser()) {
+				task.setAssignedUser(newUser);
+				taskRepo.save(task);
+				return new ResponseEntity<>("Task is assigned successfully to " +
+				newUser != null ? newUser.getUsername() : "none", HttpStatus.ACCEPTED);
+			}
+			
+			return new ResponseEntity<>("Same user, update not needed", HttpStatus.OK);
 
 		} catch (Exception e) {
 			System.out.println(e);
