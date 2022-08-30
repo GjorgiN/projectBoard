@@ -1,6 +1,6 @@
 import React, { useEffect, useRef, useState } from 'react'
 import { Container, Button } from 'react-bootstrap';
-import { Link, useParams } from 'react-router-dom'
+import { Link, useNavigate, useParams } from 'react-router-dom'
 import axios from 'axios'
 import Section from '../Components/Section';
 import plusLg from '../../node_modules/bootstrap-icons/icons/plus-lg.svg'
@@ -15,7 +15,7 @@ const Project = ({ setIsLoggedIn, isLoggedIn }) => {
     const [project, setProject] = useState(null);
     const [showAddSection, setShowAddSection] = useState(false);
     const { projectId } = useParams();
-
+    const navigate = useNavigate();
 
     const getProjectData = () => {
         const token = localStorage.getItem('user')
@@ -35,6 +35,7 @@ const Project = ({ setIsLoggedIn, isLoggedIn }) => {
             })
             .catch(err => {
                 console.log(err);
+                navigate('/');
             })
     }
 
