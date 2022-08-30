@@ -15,6 +15,8 @@ const Projects = ({ isLoggedIn, setIsLoggedIn }) => {
   const [ownedProjects, setOwnedProjects] = useState(null);
   const [memberProjects, setMemberProjects] = useState(null);
 
+  const navigate = useNavigate();
+
   // change to get only project title, description and id, separate API call to get all project data from project component
   const getMyProjects = async () => {
     let data = {};
@@ -37,6 +39,7 @@ const Projects = ({ isLoggedIn, setIsLoggedIn }) => {
       if (error.response.status === 401) {
         localStorage.removeItem('user');
         setIsLoggedIn(!isLoggedIn);
+        navigate('/');
       }
 
     }
