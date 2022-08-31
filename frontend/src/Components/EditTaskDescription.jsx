@@ -1,8 +1,6 @@
 import axios from 'axios';
 import React, { useState } from 'react';
-import { Form, FloatingLabel } from 'react-bootstrap';
-import Button from 'react-bootstrap/Button';
-import Modal from 'react-bootstrap/Modal';
+import { Modal, Button, Form, FloatingLabel } from 'react-bootstrap';
 
 const EditTaskDescription = ({ task, project, setProject, sectionId, baseUrl, doesTaskHasDescription, setDoesTaskHasDescription, taskHasDescription, taskHasNotDescription, title }) => {
 
