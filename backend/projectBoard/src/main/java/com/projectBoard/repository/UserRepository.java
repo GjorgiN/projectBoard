@@ -28,4 +28,8 @@ public interface UserRepository extends JpaRepository<User, Long> {
 	@Query(value = "SELECT * FROM \"user\" WHERE username LIKE %:username%", nativeQuery = true)
 	Set<User> searchUserByUsername(@Param("username") String username);
 
+	@Query(value = "SELECT * FROM \"user\" WHERE username LIKE %:searchQuery% OR email LIKE %:searchQuery% OR first_name LIKE %:searchQuery% "
+			+ "OR last_name LIKE %:searchQuery%", nativeQuery = true)
+	Set<User> findBySearchQuery(@Param("searchQuery") String searchQuery);
+
 }
