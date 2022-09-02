@@ -1,18 +1,63 @@
 import React, { useRef, useState } from 'react';
 import { Modal, Button, Container, Form, InputGroup, ListGroup, Row, Col } from 'react-bootstrap';
+import axios from 'axios';
 import searchIcon from '../assets/searchIcon.svg'
 
-const AddMember = () => {
+const AddMember = ({ project }) => {
     const [show, setShow] = useState(false);
-    const [search, setSearch] = useState('');
+    const [searchUser, setSearchUser] = useState('');
+    const [foundUsers, setFoundUsers] = useState([]);
 
-    const handleClose = () => { setShow(false); setSearch('') };
+    const handleClose = () => {
+        setShow(false);
+        setSearchUser('');
+        setFoundUsers([]);
+    };
     const handleShow = () => setShow(true);
-    const handleSubmit = e => { 
+
+    const handleAddNewUserToProject = e => {
         e.preventDefault();
-        console.log(inputRef.current.value)
-        inputRef.current.value = '';
-        console.log(inputRef.current.value)
+    }
+
+    const handleSubmit = e => {
+        e.preventDefault();
+
+        const searchQuery = inputRef.current.value;
+        if (searchQuery === '') {
+            setFoundUsers([]);
+            return;
+        }
+
+        const token = localStorage.getItem('user')
+
+        const config = {
+            headers: {
+                authorization: 'Bearer ' + token
+            },
+            url: 'http://localhost:8080/api/user/searchUser',
+            params: {
+                searchQuery
+            },
+            method: 'get'
+        }
+
+
+        axios(config)
+            .then(res => {
+                console.log(res.data);
+
+                if (res.data.length === 0) {
+                    setFoundUsers([]);
+                    return;
+                }
+
+                setFoundUsers(res.data);
+
+
+            })
+            .catch(error => {
+                console.log(error);
+            })
     };
 
     const inputRef = useRef();
@@ -36,11 +81,9 @@ const AddMember = () => {
                                             placeholder="Search new project member"
                                             aria-label="Search new project member by name, email or username"
                                             aria-describedby="basic-addon2"
-                                        // onChange={e => setSearch(e.target.value)}
-                                        // value={search}
                                         />
-                                        <Button type='submit' style={{ borderLeft: 'none' }} variant="outline-secondary" id="button-addon2">
-                                            <img src={searchIcon} />
+                                        <Button onFocus={e => e.target.style.boxShadow = 'none'} type='submit' variant="outline-secondary" id="button-addon2">
+                                            <img height="20rem" src={searchIcon} />
                                         </Button>
                                     </InputGroup>
                                 </Form>
@@ -49,27 +92,18 @@ const AddMember = () => {
                     </Container>
 
                     <ListGroup variant="flush">
-                        <ListGroup.Item>Cras justo odio</ListGroup.Item>
-                        <ListGroup.Item>Dapibus ac facilisis in</ListGroup.Item>
-                        <ListGroup.Item>Morbi leo risus</ListGroup.Item>
-                        <ListGroup.Item>Porta ac consectetur ac</ListGroup.Item>
-                        <ListGroup.Item>Cras justo odio</ListGroup.Item>
-                        <ListGroup.Item>Dapibus ac facilisis in</ListGroup.Item>
-                        <ListGroup.Item>Morbi leo risus</ListGroup.Item>
-                        <ListGroup.Item>Porta ac consectetur ac</ListGroup.Item>
-                        <ListGroup.Item>Cras justo odio</ListGroup.Item>
-                        <ListGroup.Item>Dapibus ac facilisis in</ListGroup.Item>
-                        <ListGroup.Item>Morbi leo risus</ListGroup.Item>
-                        <ListGroup.Item>Porta ac consectetur ac</ListGroup.Item>
-                        <ListGroup.Item>Cras justo odio</ListGroup.Item>
-                        <ListGroup.Item>Dapibus ac facilisis in</ListGroup.Item>
-                        <ListGroup.Item>Morbi leo risus</ListGroup.Item>
-                        <ListGroup.Item>Porta ac consectetur ac</ListGroup.Item>
-                        <ListGroup.Item>Cras justo odio</ListGroup.Item>
-                        <ListGroup.Item>Dapibus ac facilisis in</ListGroup.Item>
-                        <ListGroup.Item>Morbi leo risus</ListGroup.Item>
-                        <ListGroup.Item>Porta ac consectetur ac</ListGroup.Item>
+                        {foundUsers.map(user => <ListGroup.Item className='d-flex justify-content-between' key={user.id}>
+                            <span>
+                                <span>{`${user.firstName} ${user.lastName}`}</span>
+                                <span style={{ fontStyle: 'italic', fontSize: '0.95rem' }}>
+                                    {`<${user.email}>`}
+                                </span>
+                            </span>
+                            <span onClick={e => handleAddNewUserToProject(e)} className='btn btn-sm btn-outline-secondary'>Add</span>
+                        </ListGroup.Item>)}
+
                     </ListGroup>
+
                 </Modal.Body>
                 <Modal.Footer>
                     <Button variant="secondary" onClick={handleClose}>
