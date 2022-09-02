@@ -1,6 +1,7 @@
 package com.projectBoard.controller;
 
 import java.util.List;
+import java.util.Set;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -40,6 +41,16 @@ public class UserController {
 			return new ResponseEntity<>(null, HttpStatus.INTERNAL_SERVER_ERROR);
 		}
 
+	}
+
+	@PreAuthorize("hasRole('ROLE_USER')")
+	@GetMapping("/searchUser")
+	public ResponseEntity<?> searchUserForProject(@RequestParam String searchQuery) {
+		try {
+			return new ResponseEntity<>(userRepo.findBySearchQuery(searchQuery), HttpStatus.OK);
+		} catch (Exception e) {
+			return new ResponseEntity<>(e.getLocalizedMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
+		}
 	}
 
 }
