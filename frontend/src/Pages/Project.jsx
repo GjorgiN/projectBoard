@@ -60,12 +60,12 @@ const Project = ({ setIsLoggedIn, isLoggedIn }) => {
                         <Row className='align-items-center justify-content-evenly'>
                             <Col>
                                 <h3 className='d-inline align-middle'>{project.title}</h3>
-                                
+
                                 {project.owners.map(owner => <Button key={owner.id} variant='primary' className='m-1 p-1' style={{ borderRadius: '50%' }}>{`${owner.firstName.slice(0, 1)}${owner.lastName.slice(0, 1)}`}</Button>)}
 
                                 {project.members.map(member => <Button key={member.id} variant='success' className='m-1 p-1' style={{ borderRadius: '50%' }}>{`${member.firstName.slice(0, 1)}${member.lastName.slice(0, 1)}`}</Button>)}
-                                
-                                <AddMember placement='top' name='Add Member' />
+
+                                <AddMember project={project} />
                             </Col>
                         </Row>
 
