@@ -545,8 +545,9 @@ public class ProjectController {
 			if (newUser != task.getAssignedUser()) {
 				task.setAssignedUser(newUser);
 				taskRepo.save(task);
-				return new ResponseEntity<>("Task is assigned successfully to " +
-				newUser != null ? newUser.getUsername() : "none", HttpStatus.ACCEPTED);
+				return new ResponseEntity<>(
+						newUser == null ? "Assignee removed from task" : "Task is assigned successfully to " + newUser.getUsername(),
+								HttpStatus.ACCEPTED);
 			}
 			
 			return new ResponseEntity<>("Same user, update not needed", HttpStatus.OK);
