@@ -7,8 +7,6 @@ const AssignUser = ({ doesTaskIsAssigned, baseUrl, setDoesTaskIsAssigned, userIs
     const allProjectUsers = owners.concat(members);
 
     const handleUserAssignment = (e, userId) => {
-        console.log(e.target);
-
         const user = allProjectUsers.find(user => user.id === userId) || null;
 
         const params = {
@@ -35,8 +33,7 @@ const AssignUser = ({ doesTaskIsAssigned, baseUrl, setDoesTaskIsAssigned, userIs
                 const newProject = { ...project, tasks: newTasks };
                 setProject(newProject);
 
-                setDoesTaskIsAssigned(true);
-                console.log(res);
+                setDoesTaskIsAssigned(user ? true : false);
             })
             .catch(err => {
                 console.log(err);
@@ -92,7 +89,7 @@ const AssignUser = ({ doesTaskIsAssigned, baseUrl, setDoesTaskIsAssigned, userIs
 
                                 return <ListGroup.Item style={{ border: 'none' }} className='m-0 p-0' onMouseOver={e => e.target.style.cursor = 'pointer'}
                                     onClick={e => handleUserAssignment(e, user.id)} key={user.id}>
-                                    <Button className='m-0 p-0 py-1 w-100' style={{ border: 'none', borderRadius: '0' }} variant='success' size='sm'>{`${user.firstName} ${user.lastName}`}</Button>
+                                    <Button className='m-0 mb-1 px-0 py-1 w-100' style={{ border: 'none', borderRadius: '0' }} variant='success' size='sm'>{`${user.firstName} ${user.lastName}`}</Button>
 
                                 </ListGroup.Item>
                             })
