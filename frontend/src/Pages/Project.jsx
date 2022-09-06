@@ -61,11 +61,11 @@ const Project = ({ setIsLoggedIn, isLoggedIn }) => {
                             <Col>
                                 <h3 className='d-inline align-middle'>{project.title}</h3>
 
-                                {project.owners.map(owner => <Button key={owner.id} variant='primary' className='m-1 p-1' style={{ borderRadius: '50%' }}>{`${owner.firstName.slice(0, 1)}${owner.lastName.slice(0, 1)}`}</Button>)}
+                                {project.owners.map(owner => <Button key={owner.id} variant='primary' className='m-1 p-1 text-center' style={{ width: '2.2rem', height: '2.2rem', borderRadius: '50%' }}>{`${owner.firstName.slice(0, 1)}${owner.lastName.slice(0, 1)}`}</Button>)}
 
-                                {project.members.map(member => <Button key={member.id} variant='success' className='m-1 p-1' style={{ borderRadius: '50%' }}>{`${member.firstName.slice(0, 1)}${member.lastName.slice(0, 1)}`}</Button>)}
+                                {project.members.map(member => <Button key={member.id} variant='success' className='m-1 p-1 text-center' style={{ width: '2.2rem', height: '2.2rem', borderRadius: '50%' }}>{`${member.firstName.slice(0, 1)}${member.lastName.slice(0, 1)}`}</Button>)}
 
-                                <AddMember project={project} />
+                                <AddMember baseUrl={baseUrl} setProject={setProject} project={project} />
                             </Col>
                         </Row>
 
