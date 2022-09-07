@@ -27,7 +27,9 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.multipart.MultipartFile;
 
+import com.projectBoard.entity.Attachment;
 import com.projectBoard.entity.Project;
 import com.projectBoard.entity.Section;
 import com.projectBoard.entity.Task;
@@ -39,7 +41,6 @@ import com.projectBoard.repository.UserRepository;
 import com.projectBoard.request.ProjectReqRes;
 import com.projectBoard.request.SectionResReq;
 import com.projectBoard.request.TaskUpdateRequest;
-import com.projectBoard.request.UpdateTaskDueDateReq;
 
 @RestController
 @RequestMapping("/api/project")
@@ -558,7 +559,33 @@ public class ProjectController {
 		}
 
 	}
+	
+	@PreAuthorize("hasRole('ROLE_USER')")
+	@PostMapping("/myprojects/{projectId}/{taskId}/attachments")
+	public ResponseEntity<?> attachFiles(@RequestParam(required = true, name = "taskId") Long taskId,
+			@PathVariable Long projectId, Set<MultipartFile> attachments) {
+		try {
+			if (getUserCredentialsPerProject(projectId) != "owner") {
+				return new ResponseEntity<>(HttpStatus.UNAUTHORIZED);
+			}
+			
+			Task task = taskRepo.findById(taskId).orElse(null);
+			if (task != null && !attachments.isEmpty()) {
+				for (MultipartFile multipartFile : attachments) {
+					Attachment fileAttachment = new Attachment();
+					fileAttachment.setAttachment(multipartFile.getBytes());
+					task.getAttachments().add(fileAttachment);
+				}
+				taskRepo.save(task);
+			}
+			
+			return new ResponseEntity<>("Attachment uploaded successfully", HttpStatus.ACCEPTED);
+		} catch (Exception e) {
+				e.printStackTrace();
+				return new ResponseEntity<>(e.getLocalizedMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
+		}
 
+	}
 	@PreAuthorize("hasRole('ROLE_USER')")
 	@PutMapping("/myprojects/{projectId}/{sectionId}/updatetask")
 	public ResponseEntity<?> updateTask(@RequestBody TaskUpdateRequest taskUpdates, @PathVariable Long projectId,
@@ -597,12 +624,7 @@ public class ProjectController {
 			if (title != null) {
 				task.setTitle(title);
 			}
-
-			String attachment = taskUpdates.getAttachmentLocation();
-			if (attachment != null) {
-				task.setAttachmentLocation(attachment);
-			}
-			
+						
 			String taskDescription = taskUpdates.getDescription();
 			if (taskDescription != null) {
 				task.setDescription(taskDescription);
@@ -649,7 +671,6 @@ public class ProjectController {
 
 		sectionsDb.sort(Comparator.comparing(Section::getOrderId));
 
-		List<SectionResReq> sections = new ArrayList<>();
 		List<String> sectionsOrder = new ArrayList<>();
 		Map<String, SectionResReq> sectionsRes = new HashMap<>();
 		Map<String, Task> tasksRes = new HashMap<>();
