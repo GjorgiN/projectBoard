@@ -11,13 +11,14 @@ import taskHasDescription from "../assets/taskHasDescription.svg"
 import taskHasNotDescription from "../assets/taskHasNotDescription.svg"
 import userIsAssigned from "../assets/userIsAssigned.svg"
 import userNotAssigned from "../assets/userNotAssigned.svg"
+import noAttachment from "../assets/noAttachment.svg"
+import hasAttachment from "../assets/hasAttachment.svg"
 import DueDatePicker from "./DueDatePicker"
 import RenameTask from "./RenameTask"
-import { Tooltip } from "bootstrap"
 import AssignUser from "./AssignUser"
-import { getOverlayDirection } from "react-bootstrap/esm/helpers"
 
 import EditTaskDescription from "./EditTaskDescription"
+import Attachments from "./Attachments"
 
 
 
@@ -197,8 +198,10 @@ const Task = ({ task, section, project, setProject, baseUrl }) => {
 
                     <EditTaskDescription sectionId={section.id} task={task} project={project} setProject={setProject} baseUrl={baseUrl} title={task.title} doesTaskHasDescription={doesTaskHasDescription} setDoesTaskHasDescription={setDoesTaskHasDescription} taskHasDescription={taskHasDescription} taskHasNotDescription={taskHasNotDescription} />
 
-
                     <AssignUser showAssignTask={showAssignTask} setShowAssignTask={setShowAssignTask} baseUrl={baseUrl} project={project} setProject={setProject} task={task} doesTaskIsAssigned={doesTaskIsAssigned} setDoesTaskIsAssigned={setDoesTaskIsAssigned} userIsAssigned={userIsAssigned} userNotAssigned={userNotAssigned} />
+
+                    <Attachments baseUrl={baseUrl} project={project} setProject={setProject} task={task} noAttachment={noAttachment} hasAttachment={hasAttachment} />
+
                 </Container>
 
 
