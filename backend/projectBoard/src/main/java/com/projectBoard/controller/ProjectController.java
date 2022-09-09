@@ -38,8 +38,10 @@ import com.projectBoard.repository.ProjectRepository;
 import com.projectBoard.repository.SectionRepository;
 import com.projectBoard.repository.TaskRepository;
 import com.projectBoard.repository.UserRepository;
+import com.projectBoard.request.AttachmentResponse;
 import com.projectBoard.request.ProjectReqRes;
 import com.projectBoard.request.SectionResReq;
+import com.projectBoard.request.TaskResponse;
 import com.projectBoard.request.TaskUpdateRequest;
 
 @RestController
@@ -561,25 +563,29 @@ public class ProjectController {
 	}
 	
 	@PreAuthorize("hasRole('ROLE_USER')")
-	@PostMapping("/myprojects/{projectId}/{taskId}/attachments")
+	@PostMapping("/myprojects/{projectId}/attachments")
 	public ResponseEntity<?> attachFiles(@RequestParam(required = true, name = "taskId") Long taskId,
-			@PathVariable Long projectId, Set<MultipartFile> attachments) {
+			@PathVariable Long projectId, @RequestBody(required = true) Set<MultipartFile> formData) {
 		try {
 			if (getUserCredentialsPerProject(projectId) != "owner") {
 				return new ResponseEntity<>(HttpStatus.UNAUTHORIZED);
 			}
 			
 			Task task = taskRepo.findById(taskId).orElse(null);
-			if (task != null && !attachments.isEmpty()) {
-				for (MultipartFile multipartFile : attachments) {
+			Set<AttachmentResponse> attachmentsRes = new HashSet<>();
+			if (task != null && !formData.isEmpty()) {
+				for (MultipartFile multipartFile : formData) {
 					Attachment fileAttachment = new Attachment();
+					fileAttachment.setTitle(multipartFile.getName());
 					fileAttachment.setAttachment(multipartFile.getBytes());
 					task.getAttachments().add(fileAttachment);
+					
+					attachmentsRes.add(new AttachmentResponse(fileAttachment.getId(), fileAttachment.getTitle()));
 				}
 				taskRepo.save(task);
 			}
 			
-			return new ResponseEntity<>("Attachment uploaded successfully", HttpStatus.ACCEPTED);
+			return new ResponseEntity<>(attachmentsRes, HttpStatus.ACCEPTED);
 		} catch (Exception e) {
 				e.printStackTrace();
 				return new ResponseEntity<>(e.getLocalizedMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
@@ -673,7 +679,7 @@ public class ProjectController {
 
 		List<String> sectionsOrder = new ArrayList<>();
 		Map<String, SectionResReq> sectionsRes = new HashMap<>();
-		Map<String, Task> tasksRes = new HashMap<>();
+		Map<String, TaskResponse> tasksRes = new HashMap<>();
 
 		for (Section section : sectionsDb) {
 			SectionResReq sectionReqRes = new SectionResReq();
@@ -687,8 +693,16 @@ public class ProjectController {
 			tasksDb.sort(Comparator.comparing(Task::getOrderId));
 
 			for (Task task : tasksDb) {
+				Set<Attachment> attachmentsDb = task.getAttachments();
+				Set<AttachmentResponse> attachmentsRes = attachmentsDb.stream()
+						.map(a -> new AttachmentResponse(a.getId(), a.getTitle())).collect(Collectors.toSet());
+				
+				TaskResponse taskRes = new TaskResponse(task.getId(), task.getOrderId(), task.getTitle(),
+						task.getDescription(), task.getDueDate(), task.getCompleted(), task.getAssignedUser(), attachmentsRes);
+				
+				
 				tasksIds.add(Long.toString(task.getId()));
-				tasksRes.put(Long.toString(task.getId()), task);
+				tasksRes.put(Long.toString(task.getId()), taskRes);
 			}
 
 			sectionReqRes.setTasksIds(tasksIds);
