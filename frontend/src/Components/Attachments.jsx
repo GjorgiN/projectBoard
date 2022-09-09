@@ -1,6 +1,6 @@
 import React, { useState } from 'react'
+import axios from 'axios';
 import { Popover, OverlayTrigger, Container, Row, Col, Form, Alert, Button } from 'react-bootstrap'
-import FormCheckInput from 'react-bootstrap/esm/FormCheckInput';
 
 const Attachments = ({ noAttachment, hasAttachment, project, setProject, task, baseUrl }) => {
     const attachments = [...project.tasks[task.id].attachments]
@@ -20,27 +20,34 @@ const Attachments = ({ noAttachment, hasAttachment, project, setProject, task, b
 
         const config = {
             method: 'post',
-            url: `${baseUrl}/${project.id}/${task.id}/attachments`,
+            url: `${baseUrl}/${project.id}/attachments`,
             headers: {
                 authorization: 'Bearer ' + token,
                 'Content-Type': 'multipart/form-data',
             },
             formData,
+            params: {
+                taskId: task.id,
+            }
         }
 
-        formData.forEach(file => console.log(file));
+        // formData.forEach(file => console.log(file));
 
         // in project.tasks.task.attachments[att1, att2] the attachments should be string of the name, not the file it self, for download another request to be made
 
-        // axios(config)
-        //     .then(res => {
-        //         console.log(res);
-        //         const newProject = {...project};
-        //         for (const file of formData) {
-        //             newProject.tasks[task.id].attachments.push(file);
-        //         }
-        //     })
+        axios(config)
+            .then(res => {
+                console.log(res);
+                const newProject = { ...project };
+                                
+                for (const att of res.data) {
+                    newProject.tasks[task.id].attachments.push({ id: att.id, title: att.title });
+                }
 
+                setProject(newProject);
+
+            })
+            .catch(err => console.log(err));
 
     }
 
