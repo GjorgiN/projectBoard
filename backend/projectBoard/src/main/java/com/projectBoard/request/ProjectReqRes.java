@@ -4,8 +4,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import com.projectBoard.entity.Section;
-import com.projectBoard.entity.Task;
 import com.projectBoard.entity.User;
 
 import lombok.AllArgsConstructor;
@@ -22,7 +20,7 @@ public class ProjectReqRes {
 	String title;
 	String description;
 	Map<String, SectionResReq> sections;
-	Map<String, Task> tasks;
+	Map<String, TaskResponse> tasks;
 	List<String> sectionsOrder;
 	Set<User> owners;
 	Set<User> members;
