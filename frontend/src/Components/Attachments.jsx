@@ -3,7 +3,7 @@ import axios from 'axios';
 import { Popover, OverlayTrigger, Container, Row, Col, Form, Alert, Button } from 'react-bootstrap'
 
 const Attachments = ({ noAttachment, hasAttachment, project, setProject, task, baseUrl }) => {
-    const attachments = [...project.tasks[task.id].attachments]
+    const attachments = [...project.tasks[task.id].attachments] // make it state so update will be seen immediately
     const [areFilesAttached, setAreFilesAttached] = useState(attachments.length > 0);
 
     const handleFilesAttachment = e => {
@@ -12,9 +12,8 @@ const Attachments = ({ noAttachment, hasAttachment, project, setProject, task, b
         const formData = new FormData();
 
         for (const file of e.target[0].files) {
-            formData.append('files[]', file);
+            formData.append('attachments', file);
         }
-
 
         const token = localStorage.getItem('user');
 
@@ -25,21 +24,24 @@ const Attachments = ({ noAttachment, hasAttachment, project, setProject, task, b
                 authorization: 'Bearer ' + token,
                 'Content-Type': 'multipart/form-data',
             },
-            formData,
+            data: formData,
             params: {
                 taskId: task.id,
             }
         }
 
+        // console.log(formData);
+
         // formData.forEach(file => console.log(file));
 
         // in project.tasks.task.attachments[att1, att2] the attachments should be string of the name, not the file it self, for download another request to be made
+
 
         axios(config)
             .then(res => {
                 console.log(res);
                 const newProject = { ...project };
-                                
+
                 for (const att of res.data) {
                     newProject.tasks[task.id].attachments.push({ id: att.id, title: att.title });
                 }
