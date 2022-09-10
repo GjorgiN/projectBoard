@@ -167,7 +167,7 @@ const Task = ({ task, section, project, setProject, baseUrl }) => {
     return (
         <Card className="m-1 myTask d-flex">
             <Card.Body className="m-1 p-1">
-                {!showRenameTask && <Card.Title onClick={() => { setShowRenameTask(true) }} onMouseOver={(e) => e.target.style.cursor = 'pointer'} className="mb-2">{task.title}</Card.Title>}
+                {!showRenameTask && <Card.Title onClick={() => { setShowRenameTask(true) }} onMouseOver={(e) => e.target.style.cursor = 'pointer'} className="mb-2 bg-warning">{task.title}</Card.Title>}
                 {showRenameTask && <RenameTask sectionId={section.id} showRenameTask={showRenameTask} setShowRenameTask={setShowRenameTask} task={task} project={project} setProject={setProject} />}
 
 
