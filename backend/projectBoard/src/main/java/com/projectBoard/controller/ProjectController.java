@@ -13,6 +13,7 @@ import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -20,20 +21,24 @@ import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RequestPart;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.projectBoard.entity.Attachment;
 import com.projectBoard.entity.Project;
 import com.projectBoard.entity.Section;
 import com.projectBoard.entity.Task;
 import com.projectBoard.entity.User;
+import com.projectBoard.repository.AttachmentRepository;
 import com.projectBoard.repository.ProjectRepository;
 import com.projectBoard.repository.SectionRepository;
 import com.projectBoard.repository.TaskRepository;
@@ -61,6 +66,9 @@ public class ProjectController {
 
 	@Autowired
 	TaskRepository taskRepo;
+	
+	@Autowired
+	AttachmentRepository attachmentRepo;
 
 	@PreAuthorize("hasRole('ROLE_USER')")
 	@PostMapping("/create")
@@ -563,9 +571,9 @@ public class ProjectController {
 	}
 	
 	@PreAuthorize("hasRole('ROLE_USER')")
-	@PostMapping("/myprojects/{projectId}/attachments")
+	@PostMapping(value = "/myprojects/{projectId}/attachments")
 	public ResponseEntity<?> attachFiles(@RequestParam(required = true, name = "taskId") Long taskId,
-			@PathVariable Long projectId, @RequestBody(required = true) Set<MultipartFile> formData) {
+			@PathVariable Long projectId, @RequestPart MultipartFile[] attachments) {
 		try {
 			if (getUserCredentialsPerProject(projectId) != "owner") {
 				return new ResponseEntity<>(HttpStatus.UNAUTHORIZED);
@@ -573,16 +581,17 @@ public class ProjectController {
 			
 			Task task = taskRepo.findById(taskId).orElse(null);
 			Set<AttachmentResponse> attachmentsRes = new HashSet<>();
-			if (task != null && !formData.isEmpty()) {
-				for (MultipartFile multipartFile : formData) {
+			if (task != null && attachments.length > 0) {
+				for (MultipartFile multipartFile : attachments) {
+			
 					Attachment fileAttachment = new Attachment();
-					fileAttachment.setTitle(multipartFile.getName());
+					fileAttachment.setTitle(multipartFile.getOriginalFilename());
 					fileAttachment.setAttachment(multipartFile.getBytes());
-					task.getAttachments().add(fileAttachment);
-					
+					fileAttachment.setTask(task);
+					attachmentRepo.save(fileAttachment);
+															
 					attachmentsRes.add(new AttachmentResponse(fileAttachment.getId(), fileAttachment.getTitle()));
 				}
-				taskRepo.save(task);
 			}
 			
 			return new ResponseEntity<>(attachmentsRes, HttpStatus.ACCEPTED);
@@ -693,7 +702,7 @@ public class ProjectController {
 			tasksDb.sort(Comparator.comparing(Task::getOrderId));
 
 			for (Task task : tasksDb) {
-				Set<Attachment> attachmentsDb = task.getAttachments();
+				Set<Attachment> attachmentsDb = attachmentRepo.findAllByTask(task.getId());
 				Set<AttachmentResponse> attachmentsRes = attachmentsDb.stream()
 						.map(a -> new AttachmentResponse(a.getId(), a.getTitle())).collect(Collectors.toSet());
 				
