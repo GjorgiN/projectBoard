@@ -38,7 +38,5 @@ public class Task {
 
 	@ManyToOne
 	User assignedUser;
-	
-	@OneToMany
-	Set<Attachment> attachments;
+		
 }
